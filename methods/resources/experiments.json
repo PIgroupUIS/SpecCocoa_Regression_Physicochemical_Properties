@@ -1,0 +1,32 @@
+{
+  "ml_hyperparams": {
+    "mlp": [
+      {
+        "solver": "adam",
+        "max_iter": 5,
+        "alpha": 0.0001
+      },
+      {
+        "solver": "sgd",
+        "max_iter": 1500,
+        "alpha": 0.01
+      }
+    ]
+  },
+  "dl_models": [
+    {
+      "name": "spectralnet",
+      "batch_size": 32,
+      "epochs": 3,
+      "lr": 0.0005,
+      "weight_decay": 0
+    },
+    {
+      "name": "spectralnet",
+      "batch_size": 32,
+      "epochs": 3,
+      "lr": 0.0005,
+      "weight_decay": 0
+    }
+  ]
+}

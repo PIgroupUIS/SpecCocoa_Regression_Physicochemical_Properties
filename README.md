@@ -1,0 +1,224 @@
+A regression analysis project to predict the physicochemical properties of cocoa using NIR and VIS spectroscopy.
+
+## Description
+
+This project uses machine learning and deep learning techniques to predict physicochemical properties of cocoa beans based on spectral data from NIR (Near Infrared) and VIS (Visible) ranges. The target properties include:
+
+- **Fermentation level**
+- **Moisture**
+- **Cadmium**
+- **Polyphenols**
+
+---
+
+## Quick Start
+
+### Automatic Option (Recommended)
+
+**For Windows:**
+```cmd
+setup.bat
+```
+
+**For Linux/macOS:**
+```bash
+# Make the script executable (first time only)
+chmod +x setup.sh
+# Run setup
+./setup.sh
+```
+
+These scripts automatically execute all steps: create environment, install dependencies, download data, generate datasets and train models.
+
+---
+
+### Manual Option (Step by Step)
+
+Follow these steps to get started with this repository:
+
+```bash
+conda create -n Regression_cocoa python=3.10 -y
+conda run -n Regression_cocoa pip install -r requirements.txt
+```
+
+You must wait until the environment is fully set up. This may take a few minutes depending on your internet speed and system performance. Finally, you must activate the environment:
+
+```bash
+conda activate Regression_cocoa
+```
+
+### 2. Build the Datasets
+
+This step involves downloading the base dataset, generating specific training/test sets, and applying normalization. You can run only the parts you need.
+
+#### Step 2.1 – Download the Base Dataset
+
+```bash
+python data/create_dataset/download_cocoa_dataset.py
+```
+This script downloads and extracts the raw dataset into `data/raw_dataset`.
+
+#### Step 2.2 – Generate Training and Validation Datasets
+
+```bash
+python data/create_dataset/create_NIR2025_dataset.py
+python data/create_dataset/create_VIS2025_dataset.py
+```
+These scripts generate the training and validation datasets for the NIR and VIS spectrums.
+
+#### Step 2.2.1 – Generate Validation Datasets
+
+```bash
+python data/create_dataset/create_NIR2025_val_dataset.py
+python data/create_dataset/create_VIS2025_val_dataset.py
+```
+These scripts generate the validation datasets for the NIR and VIS spectrums from Carmen del Chucurí.
+
+#### Step 2.2.2 – Generate Regional Testing Datasets
+
+```bash
+python data/create_dataset/create_NIR2025_test_dataset.py
+python data/create_dataset/create_VIS2025_test_dataset.py
+```
+These scripts generate the testing datasets for the NIR and VIS spectrums from Huila and Putumayo regions in Colombia, and Costo, Peru.
+
+#### Step 2.3 – Normalize the Datasets (Required)
+
+```bash
+python data/create_dataset/normalize_datasets.py
+```
+This script automatically normalizes all datasets that were generated in the previous steps.
+
+**Tip:** You don't need to run every script, just the ones relevant to your experiment. However, the base dataset download is required for any further processing.
+
+### 3. Train the Model
+
+```bash
+python train.py
+```
+
+---
+
+## Project Structure
+
+```
+SpecCocoa_Regression_Physicochemical_Properties/
+├── setup.bat            →  Windows automatic setup (RECOMMENDED)
+├── setup.sh             →  Linux/macOS automatic setup (RECOMMENDED)
+├── data/
+│   ├── create_dataset/
+│   └── raw_dataset/
+│       ├── *.h5 (original and normalized)
+│       ├── *.csv
+│       └── *.xlsx
+├── model/
+│   ├── Deep_Learning/
+│   │   ├── NIR/ → SpectralNet models trained on NIR
+│   │   └── VIS/ → SpectralNet models trained on VIS
+│   └── Machine_Learning/
+│       ├── NIR/ → SVR, KNN models trained on NIR
+│       └── VIS/ → SVR, KNN models trained on VIS
+├── configs/ → hyperparameter configurations
+├── methods/
+│   └── automation/ → modular setup scripts
+├── Regressio_cocoa_venv/ → virtual environment (auto-created)
+├── train.py
+├── requirements.txt
+└── README.md
+```
+
+## Workflow
+
+After running `setup.bat` (Windows) or `./setup.sh` (Linux/macOS), the following will be generated automatically:
+
+### Original files (`.h5`)
+- `train_NIR_cocoa_dataset.h5`
+- `train_VIS_cocoa_dataset.h5`
+- `test_NIR_cocoa_dataset.h5`
+- `test_VIS_cocoa_dataset.h5`
+- and their TEST_* versions
+
+### Normalized files (`*_normalized.h5`)
+- `train_NIR_cocoa_dataset_normalized.h5`
+- `train_VIS_cocoa_dataset_normalized.h5`
+- `test_NIR_cocoa_dataset_normalized.h5`
+- `test_VIS_cocoa_dataset_normalized.h5`
+- and their TEST_* versions
+
+## Normalization
+
+A fixed scaling factor is applied to each property:
+
+```python
+NORM_FACTORS = {
+    'fermentation_level': 100,
+    'moisture': 10,
+    'cadmium': 5.6,
+    'polyphenols': 50
+}
+```
+
+The resulting files are stored in `.h5` format with GZIP compression.
+
+## Model Training and Evaluation
+
+Generated models are automatically saved based on type and modality under:
+
+```
+├── model/
+│   ├── Deep_Learning/
+│   │   ├── NIR/ → SpectralNet models trained on NIR
+│   │   └── VIS/ → SpectralNet models trained on VIS
+│   └── Machine_Learning/
+│       ├── NIR/ → SVR, KNN models trained on NIR
+│       └── VIS/ → SVR, KNN models trained on VIS
+```
+
+---
+
+## License
+
+MIT License – see the `LICENSE` file for details.
+
+---
+
+## GPU/CUDA Troubleshooting
+
+### Problem: "CUDA Available: False" with NVIDIA GPU
+
+If you have an NVIDIA GPU but the system installs CPU-only PyTorch, use these diagnostic and repair scripts:
+
+#### Quick Diagnostics
+```cmd
+methods\automation\quick_gpu_check.bat
+```
+
+#### Automatic CUDA Repair
+```cmd
+methods\automation\cuda_repair.bat
+```
+
+#### Complete Diagnostics
+```cmd
+methods\automation\pytorch_diagnostics.bat
+```
+
+### Common Causes and Solutions
+
+1. **Outdated NVIDIA Drivers**
+   - Download drivers from: https://www.nvidia.com/drivers
+   - Restart after installation
+
+2. **Incompatible CUDA Version**
+   - The `cuda_repair.bat` script automatically detects your CUDA and installs the correct PyTorch version
+
+3. **GPU Not Enabled**
+   - Check in BIOS/UEFI that GPU is enabled
+   - Check power connections
+
+### Important Note
+- **With GPU**: Training 5-10x faster
+- **CPU Only**: Functional but slower (especially for Deep Learning)
+- The system automatically detects your hardware and offers repair if needed
+
+---

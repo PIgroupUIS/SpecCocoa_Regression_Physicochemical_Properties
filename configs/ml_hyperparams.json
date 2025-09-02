@@ -1,0 +1,14 @@
+{
+    "mlp": [
+        {
+            "solver": "adam",
+            "max_iter": 5,
+            "alpha": 0.0001
+        },
+        {
+            "solver": "sgd",
+            "max_iter": 1500,
+            "alpha": 0.01
+        }
+    ]
+}
